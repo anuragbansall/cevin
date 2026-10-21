@@ -7,7 +7,7 @@ const app = express();
 app.use(express.json());
 
 app.get("/api", (req, res) => {
-  res.status(200).json({
+  res.sendStatus(200).json({
     message: "Server is running!"
   })
 })
