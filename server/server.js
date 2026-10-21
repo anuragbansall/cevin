@@ -1,0 +1,19 @@
+import express from "express";
+import { config } from "./src/config/config.js";
+import githubWebhookRouter from "./src/routes/GithubWebhook.js";
+
+const app = express();
+
+app.use(express.json());
+
+app.get("/api", (req, res) => {
+  res.status(200).json({
+    message: "Server is running!"
+  })
+})
+
+app.use("/api/github/webhook", githubWebhookRouter);
+
+app.listen(config.PORT, () => {
+  console.log('Server is running...');
+})
