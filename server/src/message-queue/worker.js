@@ -2,6 +2,7 @@ import { agentLoop } from "../agent/loop.js";
 import { connect } from "../config/amqp.js";
 import { config } from "../config/config.js";
 import { consume } from "./consumer.js";
+import { getInstallationToken } from "../github/client.js";
 import { Sandbox } from 'e2b'
 
 const session = await connect();
@@ -12,8 +13,6 @@ try {
 
     console.log("🎉 Received GitHub issue!");
     console.log("Data:", data);
-    // console.log("Repository:", data.repository);
-    // console.log("Issue:", data.issue);
 
     const time = Date.now();
     const sandbox = await Sandbox.create({
@@ -26,14 +25,22 @@ try {
 
     try {
       const REPO_PATH = `/home/user/${data.repository?.name}`;
-      const REPO_URL = data.repository?.html_url;
+      const REPO_URL = data.repository?.clone_url;
+      const installationId = data.installation?.id;
+
+      // Embed installation token in clone URL so git push works inside sandbox
+      let cloneUrl = REPO_URL;
+      if (installationId) {
+        const token = await getInstallationToken(installationId);
+        cloneUrl = REPO_URL.replace("https://", `https://x-access-token:${token}@`);
+      }
 
       console.log("Cloning repository...");
-      await sandbox.commands.run(`git clone --depth 1 ${REPO_URL} ${REPO_PATH}`, { timeoutMs: 120_000 });
+      await sandbox.commands.run(`git clone ${cloneUrl} ${REPO_PATH}`, { timeoutMs: 120_000 });
       console.log("Repository cloned successfully...");
 
       try {
-        await agentLoop(sandbox, REPO_PATH, data.issue)
+        await agentLoop(sandbox, REPO_PATH, data.issue, data.repository, installationId);
       } catch (err) {
         console.error(err);
       }
