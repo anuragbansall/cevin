@@ -6,6 +6,10 @@ const githubWebhookRouter = express.Router();
 
 const sessionPromise = connect();
 
+// Deduplication: track (repo, issue_number) pairs already queued.
+// Prevents duplicate sandboxes from GitHub redeliveries of the same opened event.
+const queuedIssues = new Set();
+
 githubWebhookRouter.post("/", async (req, res) => {
   try {
     const event = req.headers["x-github-event"];
@@ -24,6 +28,13 @@ githubWebhookRouter.post("/", async (req, res) => {
           error: "Missing issue or repository in webhook payload",
         });
       }
+
+      const jobKey = `${repository.full_name}#${issue.number}`;
+      if (queuedIssues.has(jobKey)) {
+        console.log(`⚠️  Duplicate delivery skipped: ${jobKey}`);
+        return res.sendStatus(200);
+      }
+      queuedIssues.add(jobKey);
 
       const session = await sessionPromise;
 
