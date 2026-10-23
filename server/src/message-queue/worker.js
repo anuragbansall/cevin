@@ -1,4 +1,4 @@
-import { readFile, runBash } from "../ai-tools/tools.js";
+import { agentLoop } from "../agent/loop.js";
 import { connect } from "../config/amqp.js";
 import { config } from "../config/config.js";
 import { consume } from "./consumer.js";
@@ -11,6 +11,7 @@ try {
     const data = JSON.parse(message);
 
     console.log("🎉 Received GitHub issue!");
+    console.log("Data:", data);
     // console.log("Repository:", data.repository);
     // console.log("Issue:", data.issue);
 
@@ -32,13 +33,7 @@ try {
       console.log("Repository cloned successfully...");
 
       try {
-        // TODO: RUN AI Tool calls in this sandbox
-        // Testing/mocking tools
-        const out = await runBash(sandbox, "pwd", REPO_PATH);
-        console.log(out);
-  
-        const out2 = await readFile(sandbox, REPO_PATH + '/Readme.md');
-        console.log(out2);
+        await agentLoop(sandbox, REPO_PATH, data.issue)
       } catch (err) {
         console.error(err);
       }

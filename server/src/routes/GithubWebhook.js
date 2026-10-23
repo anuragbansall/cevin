@@ -17,23 +17,39 @@ githubWebhookRouter.post("/", async (req, res) => {
     if (event === "issues" && action === "opened") {
       console.log("🎉 A new GitHub issue was opened!");
 
-      const issue = req.body.issue;
-      const repository = req.body.repository;
+      const { issue, repository, installation } = req.body;
+
+      if (!issue || !repository) {
+        return res.status(400).json({
+          error: "Missing issue or repository in webhook payload",
+        });
+      }
 
       const session = await sessionPromise;
 
-      await publish(session, "github-issues", JSON.stringify({
-        event,
-        action,
-        issue,
-        repository,
-      }));
+      await publish(
+        session,
+        "github-issues",
+        JSON.stringify({
+          event,
+          action,
+          issue,
+          repository,
+          installation: installation
+            ? { id: installation.id }
+            : undefined,
+          deliveryId: req.headers["x-github-delivery"],
+        })
+      );
+
+      console.log("Installation ID:", installation?.id);
+      console.log("✅ GitHub issue queued successfully");
     }
 
-    res.sendStatus(200);
+    return res.sendStatus(200);
   } catch (error) {
     console.error("Webhook processing failed:", error);
-    res.sendStatus(500);
+    return res.sendStatus(500);
   }
 });
 
