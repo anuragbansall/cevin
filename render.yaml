@@ -1,0 +1,50 @@
+services:
+  - type: web
+    name: cevin-server
+    runtime: node
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: GITHUB_APP_ID
+        sync: false
+      - key: GITHUB_CLIENT_ID
+        sync: false
+      - key: GITHUB_PRIVATE_KEY
+        sync: false
+      - key: GITHUB_WEBHOOK_SECRET
+        sync: false
+      - key: GITHUB_INSTALLATION_ID
+        sync: false
+      - key: CLOUDAMQP_URL
+        sync: false
+      - key: E2B_API_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+
+  - type: worker
+    name: cevin-worker
+    runtime: node
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm run worker:start
+    envVars:
+      - key: GITHUB_APP_ID
+        sync: false
+      - key: GITHUB_CLIENT_ID
+        sync: false
+      - key: GITHUB_PRIVATE_KEY
+        sync: false
+      - key: GITHUB_WEBHOOK_SECRET
+        sync: false
+      - key: GITHUB_INSTALLATION_ID
+        sync: false
+      - key: CLOUDAMQP_URL
+        sync: false
+      - key: E2B_API_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false

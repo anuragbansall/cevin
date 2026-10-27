@@ -6,6 +6,8 @@ export const config = {
   GITHUB_APP_ID: process.env.GITHUB_APP_ID,
   GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID,
   GITHUB_PRIVATE_KEY_PATH: process.env.GITHUB_PRIVATE_KEY_PATH,
+  // GITHUB_PRIVATE_KEY takes precedence over GITHUB_PRIVATE_KEY_PATH (used on Render where file upload isn't available)
+  GITHUB_PRIVATE_KEY: process.env.GITHUB_PRIVATE_KEY,
   GITHUB_WEBHOOK_SECRET: process.env.GITHUB_WEBHOOK_SECRET,
   GITHUB_INSTALLATION_ID: process.env.GITHUB_INSTALLATION_ID,
   CLOUDAMQP_URL: process.env.CLOUDAMQP_URL,

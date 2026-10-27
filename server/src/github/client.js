@@ -2,9 +2,17 @@ import { App } from "@octokit/app";
 import { readFileSync } from "fs";
 import { config } from "../config/config.js";
 
+function getPrivateKey() {
+  if (config.GITHUB_PRIVATE_KEY) {
+    // Render passes the key as an env var with literal \n — expand them
+    return config.GITHUB_PRIVATE_KEY.replace(/\\n/g, "\n");
+  }
+  return readFileSync(config.GITHUB_PRIVATE_KEY_PATH, "utf8");
+}
+
 const app = new App({
   appId: config.GITHUB_APP_ID,
-  privateKey: readFileSync(config.GITHUB_PRIVATE_KEY_PATH, "utf8"),
+  privateKey: getPrivateKey(),
 });
 
 export async function getInstallationClient(installationId) {

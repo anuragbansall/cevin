@@ -7,9 +7,7 @@ const app = express();
 app.use(express.json());
 
 app.get("/api", (req, res) => {
-  res.sendStatus(200).json({
-    message: "Server is running!"
-  })
+  res.json({ message: "Server is running!" });
 })
 
 app.use("/api/github/webhook", githubWebhookRouter);
